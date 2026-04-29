@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import UploadPanel from './components/UploadPanel.jsx'
 import StatsBar from './components/StatsBar.jsx'
 import BomView from './components/BomView.jsx'
@@ -19,9 +19,19 @@ const TABS = [
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('bom')
-  const [result, setResult] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [logs, setLogs] = useState([])
+  const [result, setResult]       = useState(null)
+  const [loading, setLoading]     = useState(false)
+  const [logs, setLogs]           = useState([])
+  const [theme, setTheme]         = useState(() =>
+    localStorage.getItem('pstx-theme') || 'dark'
+  )
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme === 'light' ? 'light' : '')
+    localStorage.setItem('pstx-theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark')
 
   const addLog = useCallback((msg, type = '') => {
     setLogs(prev => [...prev.slice(-30), { msg, type, id: Date.now() + Math.random() }])
@@ -83,9 +93,12 @@ export default function App() {
         <div className="sidebar-header">
           <div className="brand">
             <div className="brand-icon">PST</div>
-            <div>
+            <div style={{ flex: 1 }}>
               <div className="brand-name">PSTX Analyzer</div>
             </div>
+            <button className="theme-toggle" onClick={toggleTheme} title={theme === 'dark' ? '切换浅色' : '切换深色'}>
+              {theme === 'dark' ? '☀' : '☾'}
+            </button>
           </div>
           <div className="brand-sub">Cadence Schematic Tool — v1.2 Web</div>
         </div>
